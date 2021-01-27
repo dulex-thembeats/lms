@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+require("dotenv").config({ path: "variables.env" });
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/lms_George", {
+  .connect(process.env.DATABASE, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,

@@ -3,8 +3,8 @@ require("./db/mongoose");
 const studentRoute = require("./routes/student.routes");
 const adminRoute = require("./routes/admin.routes");
 const assignmentRoute = require("./routes/assignment.routes");
-// const courseRoute = require("./routes/course.routes");
-// const programsRoute = require("./routes/program.routes");
+const courseRoute = require("./routes/course.routes");
+const programsRoute = require("./routes/programs.routes");
 require("dotenv").config({ path: "variables.env" });
 
 const app = express();
@@ -18,8 +18,8 @@ app.use(express.json());
 app.use(studentRoute);
 app.use(adminRoute);
 app.use(assignmentRoute);
-// app.use(courseRoute);
-// app.use(programsRoute);
+app.use(courseRoute);
+app.use(programsRoute);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
+// const validator = require("validator");
 
 const programsSchema = new mongoose.Schema({
   program_id: {
@@ -10,6 +10,17 @@ const programsSchema = new mongoose.Schema({
   program_title: {
     type: String,
     required: true,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    // required: true,
+    ref: "user",
   },
 });
 

@@ -1,56 +1,21 @@
 const express = require("express");
-const Task = require("../Models/assignment.model");
+const Task = require("../Models/programs.model");
 const auth = require("../Middleware/auth");
 const authAdmin = require("../Middleware/admin.auth");
-const multer = require("multer");
-const cloudinary = require("cloudinary");
 require("dotenv").config({ path: "variables.env" });
 const router = new express.Router();
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
-
-const upload = multer({
-  dest: "myuploads/",
-  limits: {
-    fileSize: 3000000,
-  },
-  fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(pdf|docx|pptx|jpg|jpeg|png)$/)) {
-      return cb(new Error("Please upload an image file"));
-    }
-    cb(undefined, true);
-  },
-});
-
-router.post(
-  "/create_assignment",
-  authAdmin,
-  upload.single("upload"),
-  async (req, res) => {
-    const File = req.file.path;
-    cloudinary.uploader.upload(File, async (result) => {
-      const task = new Task({
-        ...req.body,
-        assignment_file: result.url,
-        assignment_file_id: result.public_id,
-        owner: req.User._id,
-      });
-
-      try {
-        await task.save();
-        res.status(201).send(task);
-      } catch (e) {
-        res.status(400).send(e);
-      }
-    });
+router.post("/create_programs", authAdmin, async (req, res) => {
+  const task = new Task(req.body);
+  try {
+    await task.save();
+    res.status(201).send(task);
+  } catch (e) {
+    res.status(400).send(e);
   }
-);
+});
 
-router.get("/assignments", authAdmin, async (req, res) => {
+router.get("/programs", authAdmin, async (req, res) => {
   try {
     const task = await Task.find({});
     res.status(201).send(task);
@@ -60,7 +25,7 @@ router.get("/assignments", authAdmin, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students-assignments", auth, async (req, res) => {
+router.get("/students-programs", auth, async (req, res) => {
   try {
     const task = await Task.find({});
     res.status(201).send(task);
@@ -70,7 +35,7 @@ router.get("/students-assignments", auth, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/assignments/:id", async (req, res) => {
+router.get("/students-programs/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
     const task = await Task.findOne({ _id, owner: req.User._id });
@@ -84,7 +49,7 @@ router.get("/assignments/:id", async (req, res) => {
   }
 });
 
-router.get("/assignments/:id", async (req, res) => {
+router.get("/programs/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
   try {
     const task = await Task.findOne({ _id, owner: req.User._id });
@@ -98,9 +63,9 @@ router.get("/assignments/:id", async (req, res) => {
   }
 });
 
-router.patch("/assignments/:id", authAdmin, async (req, res) => {
+router.patch("/programs/:id", authAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["assignment_id", "assignment_title"];
+  const allowedUpdates = ["program_id", "program_title"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -110,6 +75,9 @@ router.patch("/assignments/:id", authAdmin, async (req, res) => {
   }
 
   try {
+    //this is a very limited method
+    //const tasks = await Task.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
+    //const task = await Task.findById(req.params.id)
     const task = await Task.findOne({
       _id: req.params.id,
       owner: req.User._id,
@@ -127,7 +95,9 @@ router.patch("/assignments/:id", authAdmin, async (req, res) => {
   }
 });
 
-router.delete("/assignments/:id", authAdmin, async (req, res) => {
+router.delete("/programs/:id", authAdmin, async (req, res) => {
+  //this is very limited for our purposes
+  //const tasks = await Task.findByIdAndDelete(req.params.id);
   const _id = req.params.id;
   const tasks = await Task.findOneAndDelete({ _id, owner: req.User._id });
   try {
