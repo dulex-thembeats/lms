@@ -3,6 +3,7 @@ require("./db/mongoose");
 const studentRoute = require("./routes/student.routes");
 const adminRoute = require("./routes/admin.routes");
 const assignmentRoute = require("./routes/assignment.routes");
+const cors = require("cors");
 const courseRoute = require("./routes/course.routes");
 const programsRoute = require("./routes/programs.routes");
 require("dotenv").config({ path: "variables.env" });
@@ -15,6 +16,7 @@ const port = process.env.PORT || 3000;
 // })
 
 app.use(express.json());
+app.use(cors());
 app.use(studentRoute);
 app.use(adminRoute);
 app.use(assignmentRoute);
