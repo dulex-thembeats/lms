@@ -56,7 +56,7 @@ router.post("/students/logoutAll", auth, async (req, res) => {
   }
 });
 
-router.get("/users/me", auth, async (req, res) => {
+router.get("/students/me", auth, async (req, res) => {
   res.send(req.User);
 });
 

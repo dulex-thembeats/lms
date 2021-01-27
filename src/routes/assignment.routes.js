@@ -27,7 +27,7 @@ const upload = multer({
 });
 
 router.post(
-  "/create_assignment",
+  "/createassignment",
   authAdmin,
   upload.single("upload"),
   async (req, res) => {
@@ -60,7 +60,7 @@ router.get("/assignments", authAdmin, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students-assignments", auth, async (req, res) => {
+router.get("/studentsassignments", auth, async (req, res) => {
   try {
     const task = await Task.find({});
     res.status(201).send(task);
@@ -70,7 +70,7 @@ router.get("/students-assignments", auth, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/assignments/:id", async (req, res) => {
+router.get("/studentsassignments/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
     const task = await Task.findOne({ _id, owner: req.User._id });

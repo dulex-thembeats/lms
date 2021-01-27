@@ -5,7 +5,7 @@ const authAdmin = require("../middleware/admin.auth");
 require("dotenv").config({ path: "variables.env" });
 const router = new express.Router();
 
-router.post("/create-programs", authAdmin, async (req, res) => {
+router.post("/createprograms", authAdmin, async (req, res) => {
   const task = new Task(req.body);
   try {
     await task.save();
@@ -25,7 +25,7 @@ router.get("/programs", authAdmin, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students-programs", auth, async (req, res) => {
+router.get("/studentsprograms", auth, async (req, res) => {
   try {
     const task = await Task.find({});
     res.status(201).send(task);
@@ -35,7 +35,7 @@ router.get("/students-programs", auth, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students-programs/:id", auth, async (req, res) => {
+router.get("/studentsprograms/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
     const task = await Task.findOne({ _id, owner: req.User._id });
