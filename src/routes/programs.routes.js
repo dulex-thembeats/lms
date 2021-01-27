@@ -75,9 +75,6 @@ router.patch("/programs/:id", authAdmin, async (req, res) => {
   }
 
   try {
-    //this is a very limited method
-    //const tasks = await Task.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
-    //const task = await Task.findById(req.params.id)
     const task = await Task.findOne({
       _id: req.params.id,
       owner: req.User._id,
@@ -96,8 +93,6 @@ router.patch("/programs/:id", authAdmin, async (req, res) => {
 });
 
 router.delete("/programs/:id", authAdmin, async (req, res) => {
-  //this is very limited for our purposes
-  //const tasks = await Task.findByIdAndDelete(req.params.id);
   const _id = req.params.id;
   const tasks = await Task.findOneAndDelete({ _id, owner: req.User._id });
   try {

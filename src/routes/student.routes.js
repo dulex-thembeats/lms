@@ -5,7 +5,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
 
-router.post("/students_register", async (req, res) => {
+router.post("/students-register", async (req, res) => {
   const users = new user(req.body);
 
   try {
@@ -15,12 +15,6 @@ router.post("/students_register", async (req, res) => {
   } catch (e) {
     res.status(400).send(e);
   }
-
-  // users.save().then(() =>{
-  //     res.status(201).send(users);
-  // }).catch((e) => {
-  //     res.status(400).send("Error!", e);
-  // })
 });
 
 router.post("/students/login", async (req, res) => {
@@ -64,41 +58,8 @@ router.post("/students/logoutAll", auth, async (req, res) => {
 
 router.get("/users/me", auth, async (req, res) => {
   res.send(req.User);
-
-  // try{
-  //     const users = await user.find({})
-  //     res.send(users);
-  // }catch(e){
-  //     res.status(400).send('Err!', e)
-  // }
-
-  // user.find({}).then((users) => {
-  //     res.send(users)
-  // }).catch((e) => {
-  //     console.log("Error!", e);
-  // })
 });
 
-// router.get('/users/:id', async (req, res) => {
-//     const _id = req.params.id;
-//     try {
-//         const users = await user.findById({_id})
-//         if(!users){
-//             return res.status(404).send()
-//         }
-//         res.send(users)
-//     } catch (e) {
-//         res.status(500).send('Err!', e)
-//     }
-//     user.findById({_id}).then((user) => {
-//         if(!user){
-//         return res.status(404).send()
-//         }
-//         res.send(user);
-//     }).catch((e) => {
-//         res.status(500).send("Error!", e);
-//     })
-// })
 router.patch("/students/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
@@ -117,17 +78,10 @@ router.patch("/students/me", auth, async (req, res) => {
   }
 
   try {
-    //No longer useful since we've a stored user session
-    //const users = await user.findByIdAndUpdate(req.params.id)
     updates.forEach((update) => (req.User[update] = req.body[update]));
     await req.User.save();
 
     res.send(req.User);
-    //const users = await user.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
-    //crucial for mostly returned data from database.
-    // if(!users){
-    //   return  res.status(404).send()
-    // }
   } catch (e) {
     res.status(400).send(e);
   }
@@ -140,13 +94,6 @@ router.delete("/students/me", auth, async (req, res) => {
   } catch (e) {
     res.status(500).send(e);
   }
-  // This is a method we use to do it
-  // const users = await user.findByIdAndDelete(req.user._id);
-  // try {
-  //     if(!users){
-  //         res.status(400).send()
-  //     }
-  //  res.send(users)
 });
 const upload = multer({
   limits: {
@@ -198,18 +145,5 @@ router.get("/students/:id/avatar", auth, async (req, res) => {
     res.status(404).send();
   }
 });
-
-//This is a way of deleting a user by passing his id to the method on request i.e .params.id
-// router.delete('/users/:id', async(req, res) => {
-//     const users = await user.findByIdAndDelete(req.params.id);
-//     try {
-//         if(!users){
-//             res.status(400).send()
-//         }
-//         res.send(users)
-//     } catch (e) {
-//         res.status(500).send(e);
-//     }
-// })
 
 module.exports = router;
