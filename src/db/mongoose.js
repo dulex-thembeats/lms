@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
 require("dotenv").config({ path: "variables.env" });
 
 mongoose

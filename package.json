@@ -1,8 +1,8 @@
 {
-  "name": "Lms_George",
+  "name": "lmsgeorge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"

@@ -1,11 +1,11 @@
 const express = require("express");
-const Task = require("../Models/programs.model");
-const auth = require("../Middleware/auth");
-const authAdmin = require("../Middleware/admin.auth");
+const Task = require("../models/programs.model");
+const auth = require("../middleware/auth");
+const authAdmin = require("../middleware/admin.auth");
 require("dotenv").config({ path: "variables.env" });
 const router = new express.Router();
 
-router.post("/create_programs", authAdmin, async (req, res) => {
+router.post("/create-programs", authAdmin, async (req, res) => {
   const task = new Task(req.body);
   try {
     await task.save();
