@@ -1,6 +1,5 @@
 const express = require("express");
 require("./db/mongoose");
-const cors = require("cors");
 const student_route = require("./routes/student");
 const admin_route = require("./routes/admin");
 const assignment_route = require("./routes/assignment");
@@ -16,7 +15,7 @@ const port = process.env.PORT || 3000;
 // })
 
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
 app.use(student_route);
 app.use(admin_route);
 app.use(assignment_route);
