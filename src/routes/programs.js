@@ -1,7 +1,7 @@
 const express = require("express");
-const task = require("../models/programs.model");
+const task = require("../models/programs");
 const auth = require("../middleware/auth");
-const authAdmin = require("../middleware/admin.auth");
+const authAdmin = require("../middleware/admin");
 require("dotenv").config({ path: "variables.env" });
 const router = new express.Router();
 

@@ -1,7 +1,7 @@
 const express = require("express");
-const task = require("../models/assignment.model");
+const task = require("../models/course");
 const auth = require("../middleware/auth");
-const authAdmin = require("../middleware/admin.auth");
+const authAdmin = require("../middleware/admin");
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 require("dotenv").config({ path: "variables.env" });
@@ -27,7 +27,7 @@ const upload = multer({
 });
 
 router.post(
-  "/assignment/create",
+  "/course/create",
   authAdmin,
   upload.single("upload"),
   async (req, res) => {
@@ -35,8 +35,8 @@ router.post(
     cloudinary.uploader.upload(File, async (result) => {
       const tasks = new task({
         ...req.body,
-        assignment_file: result.url,
-        assignment_file_id: result.public_id,
+        course_file: result.url,
+        course_id: result.public_id,
         owner: req.User._id,
       });
 
@@ -50,7 +50,7 @@ router.post(
   }
 );
 
-router.get("/assignments", authAdmin, async (req, res) => {
+router.get("/courses", authAdmin, async (req, res) => {
   try {
     const tasks = await task.find({});
     res.status(201).send(tasks);
@@ -59,7 +59,7 @@ router.get("/assignments", authAdmin, async (req, res) => {
   }
 });
 
-router.get("/assignments/:id", async (req, res) => {
+router.get("/courses/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
   try {
     const tasks = await task.findOne({ _id, owner: req.User._id });
@@ -74,7 +74,7 @@ router.get("/assignments/:id", async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students/assignments", auth, async (req, res) => {
+router.get("/students/courses", auth, async (req, res) => {
   try {
     const tasks = await task.find({});
     res.status(201).send(tasks);
@@ -84,7 +84,7 @@ router.get("/students/assignments", auth, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/students/assignments/:id", auth, async (req, res) => {
+router.get("/courses/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
     const tasks = await task.findOne({ _id, owner: req.User._id });
@@ -98,9 +98,14 @@ router.get("/students/assignments/:id", auth, async (req, res) => {
   }
 });
 
-router.patch("/assignments/:id", authAdmin, async (req, res) => {
+router.patch("/courses/:id", authAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["assignment_id", "assignment_title"];
+  const allowedUpdates = [
+    "course_title",
+    "course_code",
+    "department_id",
+    "program_id",
+  ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -123,12 +128,11 @@ router.patch("/assignments/:id", authAdmin, async (req, res) => {
     await tasks.save();
     res.send(tasks);
   } catch (e) {
-    //for clarity sake
-    res.status(400).send("You can't alter because it wasn't created by you", e);
+    res.status(400).send(e);
   }
 });
 
-router.delete("/assignments/:id", authAdmin, async (req, res) => {
+router.delete("/courses/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
   const tasks = await task.findOneAndDelete({ _id, owner: req.User._id });
   try {
@@ -137,8 +141,7 @@ router.delete("/assignments/:id", authAdmin, async (req, res) => {
     }
     res.send(tasks);
   } catch (e) {
-    //for clarity sake
-    res.status(500).send("You can't alter because it wasn't created by you", e);
+    res.status(500).send(e);
   }
 });
 

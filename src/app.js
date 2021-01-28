@@ -1,11 +1,11 @@
 const express = require("express");
 require("./db/mongoose");
-const student_route = require("./routes/student.routes");
-const admin_route = require("./routes/admin.routes");
-const assignment_route = require("./routes/assignment.routes");
+const student_route = require("./routes/student");
+const admin_route = require("./routes/admin");
+const assignment_route = require("./routes/assignment");
 const cors = require("cors");
-const course_route = require("./routes/course.routes");
-const programs_route = require("./routes/programs.routes");
+const course_route = require("./routes/course");
+const programs_route = require("./routes/programs");
 require("dotenv").config({ path: "variables.env" });
 
 const app = express();

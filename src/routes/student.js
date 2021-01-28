@@ -1,11 +1,11 @@
 const express = require("express");
-const user = require("../models/admin.model");
-const auth = require("../middleware/admin.auth");
+const user = require("../models/student");
+const auth = require("../middleware/auth");
 const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
 
-router.post("/admin/register", async (req, res) => {
+router.post("/students/register", async (req, res) => {
   const users = new user(req.body);
 
   try {
@@ -17,23 +17,23 @@ router.post("/admin/register", async (req, res) => {
   }
 });
 
-router.post("/admin/login", async (req, res) => {
+router.post("/students/login", async (req, res) => {
   try {
     const users = await user.findByCredentials(
       req.body.email,
       req.body.password
     );
     const token = await users.generateAuthToken();
-    res.send({
+    res.status(201).send({
       users,
       token,
     });
   } catch (e) {
-    res.status(400).send();
+    res.status(400).send("Invalid Username or Password Details");
   }
 });
 
-router.post("/admin/logout", auth, async (req, res) => {
+router.post("/students/logout", auth, async (req, res) => {
   try {
     req.User.tokens = req.User.tokens.filter((tokens) => {
       return tokens.token !== req.token;
@@ -46,7 +46,7 @@ router.post("/admin/logout", auth, async (req, res) => {
   }
 });
 
-router.post("/admin/logoutAll", auth, async (req, res) => {
+router.post("/students/logoutAll", auth, async (req, res) => {
   try {
     req.User.tokens = [];
     await req.User.save();
@@ -56,18 +56,18 @@ router.post("/admin/logoutAll", auth, async (req, res) => {
   }
 });
 
-router.get("/admin/me", auth, async (req, res) => {
+router.get("/students/me", auth, async (req, res) => {
   res.send(req.User);
 });
 
-router.patch("/admin/me", auth, async (req, res) => {
+router.patch("/students/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
     "name",
     "email",
     "password",
-    "phone_number",
-    "department",
+    "program_id",
+    "department_id",
   ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
@@ -87,7 +87,7 @@ router.patch("/admin/me", auth, async (req, res) => {
   }
 });
 
-router.delete("/admin/me", auth, async (req, res) => {
+router.delete("/students/me", auth, async (req, res) => {
   try {
     await req.User.remove();
     res.send(req.User);
@@ -95,6 +95,7 @@ router.delete("/admin/me", auth, async (req, res) => {
     res.status(500).send(e);
   }
 });
+
 const upload = multer({
   limits: {
     fileSize: 1000000,
@@ -108,7 +109,7 @@ const upload = multer({
 });
 
 router.post(
-  "/admin/me/avatar",
+  "/students/me/avatar",
   auth,
   upload.single("avatar"),
   async (req, res) => {
@@ -127,13 +128,13 @@ router.post(
   }
 );
 
-router.delete("/admin/me/avatar", auth, async (req, res) => {
+router.delete("/students/me/avatar", auth, async (req, res) => {
   req.User.avatar = undefined;
   await req.User.save();
   res.send();
 });
 
-router.get("/admin/:id/avatar", auth, async (req, res) => {
+router.get("/students/:id/avatar", auth, async (req, res) => {
   try {
     const User = await user.findById(req.params.id);
     if (!User || !User.avatar) {
