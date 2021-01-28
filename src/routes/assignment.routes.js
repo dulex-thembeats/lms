@@ -1,5 +1,5 @@
 const express = require("express");
-const Task = require("../models/assignment.model");
+const task = require("../models/assignment.model");
 const auth = require("../middleware/auth");
 const authAdmin = require("../middleware/admin.auth");
 const multer = require("multer");
@@ -27,13 +27,13 @@ const upload = multer({
 });
 
 router.post(
-  "/createassignment",
+  "/assignment/create",
   authAdmin,
   upload.single("upload"),
   async (req, res) => {
     const File = req.file.path;
     cloudinary.uploader.upload(File, async (result) => {
-      const task = new Task({
+      const tasks = new task({
         ...req.body,
         assignment_file: result.url,
         assignment_file_id: result.public_id,
@@ -41,8 +41,8 @@ router.post(
       });
 
       try {
-        await task.save();
-        res.status(201).send(task);
+        await tasks.save();
+        res.status(201).send(tasks);
       } catch (e) {
         res.status(400).send(e);
       }
@@ -52,47 +52,47 @@ router.post(
 
 router.get("/assignments", authAdmin, async (req, res) => {
   try {
-    const task = await Task.find({});
-    res.status(201).send(task);
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
-  }
-});
-
-//Students access to the assigment route
-router.get("/studentsassignments", auth, async (req, res) => {
-  try {
-    const task = await Task.find({});
-    res.status(201).send(task);
-  } catch (e) {
-    res.status(400).send(e);
-  }
-});
-
-//Students access to the assigment route
-router.get("/studentsassignments/:id", auth, async (req, res) => {
-  const _id = req.params.id;
-  try {
-    const task = await Task.findOne({ _id, owner: req.User._id });
-
-    if (!task) {
-      return res.status(404).send();
-    }
-    res.send(task);
-  } catch (e) {
-    res.status(500).send();
   }
 });
 
 router.get("/assignments/:id", async (req, res) => {
   const _id = req.params.id;
   try {
-    const task = await Task.findOne({ _id, owner: req.User._id });
+    const tasks = await task.findOne({ _id, owner: req.User._id });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
-    res.send(task);
+    res.send(tasks);
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
+//Students access to the assigment route
+router.get("/students/assignments", auth, async (req, res) => {
+  try {
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+//Students access to the assigment route
+router.get("/students/assignments/:id", auth, async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const tasks = await task.findOne({ _id, owner: req.User._id });
+
+    if (!tasks) {
+      return res.status(404).send();
+    }
+    res.send(tasks);
   } catch (e) {
     res.status(500).send();
   }
@@ -110,33 +110,35 @@ router.patch("/assignments/:id", authAdmin, async (req, res) => {
   }
 
   try {
-    const task = await Task.findOne({
+    const tasks = await task.findOne({
       _id: req.params.id,
       owner: req.User._id,
     });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
 
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
-    res.send(task);
+    updates.forEach((update) => (tasks[update] = req.body[update]));
+    await tasks.save();
+    res.send(tasks);
   } catch (e) {
-    res.status(400).send(e);
+    //for clarity sake
+    res.status(400).send("You can't alter because it wasn't created by you", e);
   }
 });
 
 router.delete("/assignments/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
-  const tasks = await Task.findOneAndDelete({ _id, owner: req.User._id });
+  const tasks = await task.findOneAndDelete({ _id, owner: req.User._id });
   try {
     if (!tasks) {
       res.status(400).send();
     }
     res.send(tasks);
   } catch (e) {
-    res.status(500).send(e);
+    //for clarity sake
+    res.status(500).send("You can't alter because it wasn't created by you", e);
   }
 });
 

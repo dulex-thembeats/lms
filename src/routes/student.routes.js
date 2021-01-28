@@ -5,7 +5,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
 
-router.post("/studentsregister", async (req, res) => {
+router.post("/students/register", async (req, res) => {
   const users = new user(req.body);
 
   try {
@@ -95,6 +95,7 @@ router.delete("/students/me", auth, async (req, res) => {
     res.status(500).send(e);
   }
 });
+
 const upload = multer({
   limits: {
     fileSize: 1000000,

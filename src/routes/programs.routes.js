@@ -1,63 +1,69 @@
 const express = require("express");
-const Task = require("../models/programs.model");
+const task = require("../models/programs.model");
 const auth = require("../middleware/auth");
 const authAdmin = require("../middleware/admin.auth");
 require("dotenv").config({ path: "variables.env" });
 const router = new express.Router();
 
-router.post("/createprograms", authAdmin, async (req, res) => {
-  const task = new Task(req.body);
+//create a new program
+router.post("/programs/create", authAdmin, async (req, res) => {
+  const tasks = new task({
+    ...req.body,
+    owner: req.User._id,
+  });
   try {
-    await task.save();
-    res.status(201).send(task);
+    await tasks.save();
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
+//Get all programs
 router.get("/programs", authAdmin, async (req, res) => {
   try {
-    const task = await Task.find({});
-    res.status(201).send(task);
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
-//Students access to the assigment route
-router.get("/studentsprograms", auth, async (req, res) => {
+//Students access to the programs route
+router.get("/students/programs", auth, async (req, res) => {
   try {
-    const task = await Task.find({});
-    res.status(201).send(task);
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
-//Students access to the assigment route
-router.get("/studentsprograms/:id", auth, async (req, res) => {
+//Students access to the programs route
+router.get("/students/programs/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
-    const task = await Task.findOne({ _id, owner: req.User._id });
+    const tasks = await task.findOne({ _id, owner: req.User._id });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
-    res.send(task);
+    res.send(tasks);
   } catch (e) {
     res.status(500).send();
   }
 });
 
+//An admin will only see programs created by them
 router.get("/programs/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
   try {
-    const task = await Task.findOne({ _id, owner: req.User._id });
+    const tasks = await task.findOne({ _id, owner: req.User._id });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
-    res.send(task);
+    res.send(tasks);
   } catch (e) {
     res.status(500).send();
   }
@@ -75,7 +81,7 @@ router.patch("/programs/:id", authAdmin, async (req, res) => {
   }
 
   try {
-    const task = await Task.findOne({
+    const tasks = await task.findOne({
       _id: req.params.id,
       owner: req.User._id,
     });
@@ -84,24 +90,26 @@ router.patch("/programs/:id", authAdmin, async (req, res) => {
       return res.status(404).send();
     }
 
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
-    res.send(task);
+    updates.forEach((update) => (tasks[update] = req.body[update]));
+    await tasks.save();
+    res.send(tasks);
   } catch (e) {
-    res.status(400).send(e);
+    //for clarity sake
+    res.status(400).send("You can't alter because it wasn't created by you", e);
   }
 });
 
 router.delete("/programs/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
-  const tasks = await Task.findOneAndDelete({ _id, owner: req.User._id });
+  const tasks = await task.findOneAndDelete({ _id, owner: req.User._id });
   try {
     if (!tasks) {
       res.status(400).send();
     }
     res.send(tasks);
   } catch (e) {
-    res.status(500).send(e);
+    //for clarity sake
+    res.status(500).send("You can't alter because it wasn't created by you", e);
   }
 });
 

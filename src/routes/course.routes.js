@@ -1,5 +1,5 @@
 const express = require("express");
-const Task = require("../models/course.model");
+const task = require("../models/course.model");
 const auth = require("../middleware/auth");
 const authAdmin = require("../middleware/admin.auth");
 const multer = require("multer");
@@ -27,13 +27,13 @@ const upload = multer({
 });
 
 router.post(
-  "/createcourse",
+  "/course/create",
   authAdmin,
   upload.single("upload"),
   async (req, res) => {
     const File = req.file.path;
     cloudinary.uploader.upload(File, async (result) => {
-      const task = new Task({
+      const tasks = new task({
         ...req.body,
         course_file: result.url,
         course_id: result.public_id,
@@ -41,8 +41,8 @@ router.post(
       });
 
       try {
-        await task.save();
-        res.status(201).send(task);
+        await tasks.save();
+        res.status(201).send(tasks);
       } catch (e) {
         res.status(400).send(e);
       }
@@ -52,18 +52,32 @@ router.post(
 
 router.get("/courses", authAdmin, async (req, res) => {
   try {
-    const task = await Task.find({});
-    res.status(201).send(task);
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
-//Students access to the assigment route
-router.get("/studentscourses", auth, async (req, res) => {
+router.get("/courses/:id", authAdmin, async (req, res) => {
+  const _id = req.params.id;
   try {
-    const task = await Task.find({});
-    res.status(201).send(task);
+    const tasks = await task.findOne({ _id, owner: req.User._id });
+
+    if (!tasks) {
+      return res.status(404).send();
+    }
+    res.send(tasks);
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
+//Students access to the assigment route
+router.get("/students/courses", auth, async (req, res) => {
+  try {
+    const tasks = await task.find({});
+    res.status(201).send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
@@ -73,12 +87,12 @@ router.get("/studentscourses", auth, async (req, res) => {
 router.get("/courses/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
-    const task = await Task.findOne({ _id, owner: req.User._id });
+    const tasks = await task.findOne({ _id, owner: req.User._id });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
-    res.send(task);
+    res.send(tasks);
   } catch (e) {
     res.status(500).send();
   }
@@ -87,7 +101,6 @@ router.get("/courses/:id", auth, async (req, res) => {
 router.patch("/courses/:id", authAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
-    "course_id",
     "course_title",
     "course_code",
     "department_id",
@@ -102,18 +115,18 @@ router.patch("/courses/:id", authAdmin, async (req, res) => {
   }
 
   try {
-    const task = await Task.findOne({
+    const tasks = await task.findOne({
       _id: req.params.id,
       owner: req.User._id,
     });
 
-    if (!task) {
+    if (!tasks) {
       return res.status(404).send();
     }
 
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
-    res.send(task);
+    updates.forEach((update) => (tasks[update] = req.body[update]));
+    await tasks.save();
+    res.send(tasks);
   } catch (e) {
     res.status(400).send(e);
   }
@@ -121,7 +134,7 @@ router.patch("/courses/:id", authAdmin, async (req, res) => {
 
 router.delete("/courses/:id", authAdmin, async (req, res) => {
   const _id = req.params.id;
-  const tasks = await Task.findOneAndDelete({ _id, owner: req.User._id });
+  const tasks = await task.findOneAndDelete({ _id, owner: req.User._id });
   try {
     if (!tasks) {
       res.status(400).send();

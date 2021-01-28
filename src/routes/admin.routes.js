@@ -5,7 +5,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
 
-router.post("/adminregister", async (req, res) => {
+router.post("/admin/register", async (req, res) => {
   const users = new user(req.body);
 
   try {

@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const assignmentSchema = new mongoose.Schema({
   assignment_id: {
     type: String,
-    default: "002",
+    default: "01",
     // required: true,
   },
 

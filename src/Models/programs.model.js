@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const validator = require("validator");
 
-const programsSchema = new mongoose.Schema({
+const programSchema = new mongoose.Schema({
   program_id: {
     type: String,
     required: true,
@@ -24,6 +24,6 @@ const programsSchema = new mongoose.Schema({
   },
 });
 
-const programs = mongoose.model("programs", programsSchema);
+const program = mongoose.model("program", programSchema);
 
-module.exports = programs;
+module.exports = program;
