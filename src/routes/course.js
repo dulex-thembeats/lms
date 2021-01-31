@@ -84,7 +84,7 @@ router.get("/students/courses", auth, async (req, res) => {
 });
 
 //Students access to the assigment route
-router.get("/courses/:id", auth, async (req, res) => {
+router.get("/courses/students/:id", auth, async (req, res) => {
   const _id = req.params.id;
   try {
     const tasks = await task.findOne({ _id, owner: req.User._id });
