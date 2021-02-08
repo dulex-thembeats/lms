@@ -1,6 +1,7 @@
 const express = require("express");
 const user = require("../models/admin");
-const auth = require("../middleware/admin");
+const student = require("../models/student");
+const authAdmin = require("../middleware/admin");
 const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
@@ -33,7 +34,25 @@ router.post("/admin/login", async (req, res) => {
   }
 });
 
-router.post("/admin/logout", auth, async (req, res) => {
+router.get("/admin/students", authAdmin, async (req, res) => {
+  try {
+    const students = await student.find({});
+    res.status(200).send(students);
+  } catch (error) {
+    res.status(400).send("no students found", e);
+  }
+});
+
+router.get("/admin/admins", authAdmin, async (req, res) => {
+  try {
+    const admin = await user.find({});
+    res.status(200).send(admin);
+  } catch (error) {
+    res.status(400).send("no students found", e);
+  }
+});
+
+router.post("/admin/logout", authAdmin, async (req, res) => {
   try {
     req.User.tokens = req.User.tokens.filter((tokens) => {
       return tokens.token !== req.token;
@@ -46,7 +65,7 @@ router.post("/admin/logout", auth, async (req, res) => {
   }
 });
 
-router.post("/admin/logoutAll", auth, async (req, res) => {
+router.post("/admin/logoutAll", authAdmin, async (req, res) => {
   try {
     req.User.tokens = [];
     await req.User.save();
@@ -56,11 +75,11 @@ router.post("/admin/logoutAll", auth, async (req, res) => {
   }
 });
 
-router.get("/admin/me", auth, async (req, res) => {
+router.get("/admin/me", authAdmin, async (req, res) => {
   res.send(req.User);
 });
 
-router.patch("/admin/me", auth, async (req, res) => {
+router.patch("/admin/me", authAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = [
     "name",
@@ -87,7 +106,7 @@ router.patch("/admin/me", auth, async (req, res) => {
   }
 });
 
-router.delete("/admin/me", auth, async (req, res) => {
+router.delete("/admin/me", authAdmin, async (req, res) => {
   try {
     await req.User.remove();
     res.send(req.User);
@@ -109,7 +128,7 @@ const upload = multer({
 
 router.post(
   "/admin/me/avatar",
-  auth,
+  authAdmin,
   upload.single("avatar"),
   async (req, res) => {
     const buffer = await sharp(req.file.buffer)
@@ -127,13 +146,13 @@ router.post(
   }
 );
 
-router.delete("/admin/me/avatar", auth, async (req, res) => {
+router.delete("/admin/me/avatar", authAdmin, async (req, res) => {
   req.User.avatar = undefined;
   await req.User.save();
   res.send();
 });
 
-router.get("/admin/:id/avatar", auth, async (req, res) => {
+router.get("/admin/:id/avatar", authAdmin, async (req, res) => {
   try {
     const User = await user.findById(req.params.id);
     if (!User || !User.avatar) {
