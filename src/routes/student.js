@@ -1,11 +1,12 @@
 const express = require("express");
 const user = require("../models/student");
 const auth = require("../middleware/auth");
+const authAdmin = require("../middleware/admin");
 const multer = require("multer");
 const sharp = require("sharp");
 const router = new express.Router();
 
-router.post("/students/register", async (req, res) => {
+router.post("/students/register", authAdmin, async (req, res) => {
   const users = new user(req.body);
 
   try {
